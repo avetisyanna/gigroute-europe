@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgis/postgis:17-3.5
+    container_name: gigroute_db
+
+    env_file:
+      - .env
+
+    ports:
+      - "${POSTGRES_PORT}:5432"
+
+    volumes:
+      - gigroute_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  gigroute_postgres_data:
