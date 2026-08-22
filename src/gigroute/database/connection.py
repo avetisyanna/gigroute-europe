@@ -16,6 +16,10 @@ def get_database_engine():
     db_password = os.getenv("POSTGRES_PASSWORD")
     db_name = os.getenv("POSTGRES_DB")
     db_port = os.getenv("POSTGRES_PORT")
+    db_host = os.getenv(
+    "POSTGRES_HOST",
+    "localhost",
+)
 
     if not all([
         db_user,
@@ -31,7 +35,7 @@ def get_database_engine():
         drivername="postgresql+psycopg2",
         username=db_user,
         password=db_password,
-        host="localhost",
+        host=db_host,
         port=int(db_port),
         database=db_name,
     )

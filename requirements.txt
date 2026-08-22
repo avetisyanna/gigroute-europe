@@ -1,0 +1,12 @@
+pandas
+requests
+sqlalchemy
+psycopg2-binary
+python-dotenv
+fastapi
+uvicorn
+pydantic
+streamlit
+plotly
+geopy
+pytest

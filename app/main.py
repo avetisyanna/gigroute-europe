@@ -1,12 +1,16 @@
 from datetime import date
 
+import os
 import requests
 import streamlit as st
 import pandas as pd
 import plotly.express as px
 
 
-API_URL = "http://127.0.0.1:8000"
+API_URL = os.getenv(
+    "API_URL",
+    "http://127.0.0.1:8000",
+)
 
 
 def parse_comma_separated_values(value):

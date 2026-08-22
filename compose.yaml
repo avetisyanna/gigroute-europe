@@ -11,6 +11,46 @@ services:
 
     volumes:
       - gigroute_postgres_data:/var/lib/postgresql/data
-
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gigroute_api
+    env_file:
+      - .env
+    environment:
+      POSTGRES_HOST: db
+    ports:
+      - "8000:8000"
+    depends_on: 
+      - db
+    command:
+      [
+        "uvicorn",
+        "api.main:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8000"
+      ]
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gigroute_app
+    environment:
+      API_URL: http://api:8000
+    ports:
+      - "8501:8501"
+    depends_on:
+      - api
+    command:
+      [
+        "streamlit",
+        "run",
+        "app/main.py",
+        "--server.address=0.0.0.0",
+        "--server.port=8501"
+      ]
 volumes:
   gigroute_postgres_data:
