@@ -24,17 +24,27 @@ def calculate_genre_score(event_genres, preferred_genres):
 
     return len(matching_genres) / len(preferred_genres)
 
-def calculate_artist_score(artist_name, preferred_artists):
+def calculate_artist_score(
+    artist_name,
+    preferred_artists,
+):
+    if not isinstance(artist_name, str):
+        return 0.0
+
+    artist_name = artist_name.strip()
+
     if not artist_name:
         return 0.0
 
     preferred_artists = {
         artist.casefold()
         for artist in preferred_artists
+        if isinstance(artist, str)
     }
 
     return float(
-        artist_name.casefold() in preferred_artists
+        artist_name.casefold()
+        in preferred_artists
     )
 
 def calculate_ranking_score(
