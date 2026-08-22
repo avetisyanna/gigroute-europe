@@ -2,6 +2,8 @@ from datetime import date
 
 import requests
 import streamlit as st
+import pandas as pd
+import plotly.express as px
 
 
 API_URL = "http://127.0.0.1:8000"
@@ -137,7 +139,6 @@ if st.button(
             )
 
         response.raise_for_status()
-
         data = response.json()
 
     except requests.RequestException as error:
@@ -161,6 +162,51 @@ if st.button(
         f"Found {len(recommendations)} recommendations."
     )
 
+    map_df = pd.DataFrame(
+        recommendations
+    )
+
+    map_df = map_df.dropna(
+        subset=[
+            "latitude",
+            "longitude",
+        ]
+    )
+
+    if not map_df.empty:
+        st.subheader(
+            "Concert Map"
+        )
+
+        fig = px.scatter_map(
+            map_df,
+            lat="latitude",
+            lon="longitude",
+            hover_name="event_name",
+            hover_data={
+                "artist_name": True,
+                "city": True,
+                "venue_name": True,
+                "event_date": True,
+                "distance_km": ":.1f",
+                "ranking_score": ":.2f",
+                "latitude": False,
+                "longitude": False,
+            },
+            size="ranking_score",
+            center={
+                "lat": latitude,
+                "lon": longitude,
+            },
+            zoom=4,
+            height=550,
+        )
+
+        st.plotly_chart(
+            fig,
+            width="stretch",
+        )
+    
     st.subheader(
         "Recommended Concerts"
     )
