@@ -35,18 +35,17 @@ st.write(
 st.subheader("Search Preferences")
 
 
+city = st.text_input(
+    "City",
+    value="Berlin",
+    placeholder="Berlin, Paris, Amsterdam...",
+)
+
+
 col1, col2 = st.columns(2)
 
 
 with col1:
-    latitude = st.number_input(
-        "Latitude",
-        min_value=-90.0,
-        max_value=90.0,
-        value=52.5200,
-        format="%.4f",
-    )
-
     radius_km = st.slider(
         "Travel radius (km)",
         min_value=10,
@@ -62,25 +61,17 @@ with col1:
 
 
 with col2:
-    longitude = st.number_input(
-        "Longitude",
-        min_value=-180.0,
-        max_value=180.0,
-        value=13.4050,
-        format="%.4f",
-    )
-
-    end_date = st.date_input(
-        "End date",
-        value=date(2027, 2, 28),
-    )
-
     limit = st.slider(
         "Number of recommendations",
         min_value=5,
         max_value=100,
         value=20,
         step=5,
+    )
+
+    end_date = st.date_input(
+        "End date",
+        value=date(2027, 2, 28),
     )
 
 
@@ -118,8 +109,7 @@ if st.button(
     )
 
     payload = {
-        "user_latitude": latitude,
-        "user_longitude": longitude,
+        "city": city,
         "radius_km": radius_km,
         "start_date": start_date.isoformat(),
         "end_date": end_date.isoformat(),
@@ -151,6 +141,11 @@ if st.button(
         "recommendations",
         [],
     )
+
+    location = data.get(
+    "location",
+    {},
+)
 
     if not recommendations:
         st.warning(
@@ -195,8 +190,8 @@ if st.button(
             },
             size="ranking_score",
             center={
-                "lat": latitude,
-                "lon": longitude,
+                "lat": location.get("latitude"),
+                "lon": location.get("longitude"),
             },
             zoom=4,
             height=550,
