@@ -5,6 +5,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
 from gigroute.ranking.engine import rank_concerts
+from gigroute.geo.geocoding import geocode_city
 
 
 app = FastAPI(
@@ -14,14 +15,11 @@ app = FastAPI(
 
 
 class RecommendationRequest(BaseModel):
-    user_latitude: float = Field(
-        ge=-90,
-        le=90,
+    city: str = Field(
+        min_length=1,
+        max_length=100,
     )
-    user_longitude: float = Field(
-        ge=-180,
-        le=180,
-    )
+
     radius_km: float = Field(
         gt=0,
         le=1000,
@@ -38,7 +36,6 @@ class RecommendationRequest(BaseModel):
         ge=1,
         le=100,
     )
-
 
 @app.get("/health")
 def health_check():
@@ -57,9 +54,19 @@ def get_recommendations(
             detail="start_date must be before end_date",
         )
 
+    location = geocode_city(
+        request.city
+    )
+
+    if location is None:
+        raise HTTPException(
+            status_code=404,
+            detail="City could not be found",
+        )
+
     ranked_events = rank_concerts(
-        user_latitude=request.user_latitude,
-        user_longitude=request.user_longitude,
+        user_latitude=location["latitude"],
+        user_longitude=location["longitude"],
         radius_km=request.radius_km,
         start_date=request.start_date,
         end_date=request.end_date,
@@ -130,6 +137,11 @@ def get_recommendations(
     )
 
     return {
+        "location": {
+            "name": location["name"],
+            "latitude": location["latitude"],
+            "longitude": location["longitude"],
+        },
         "count": len(records),
         "recommendations": records,
     }
